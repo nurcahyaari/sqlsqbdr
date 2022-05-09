@@ -2,8 +2,6 @@ package sqlsqbdr
 
 import (
 	"fmt"
-	"reflect"
-	"strings"
 )
 
 type FilterComparisonOperator int
@@ -81,38 +79,17 @@ type Filter struct {
 
 type Filters []*Filter
 
-func BuildWhereFilter(filters Filters) string {
+func BuildWhereFilter(filters Filters) (string, []interface{}) {
 	filterQuery := ""
+	var values []interface{}
 
 	for i, r := range filters {
-		typeOf := reflect.TypeOf(r.Value)
-		valueOf := reflect.ValueOf(r.Value)
-
-		var listvalue []string
-		if typeOf.Kind() == reflect.Array || typeOf.Kind() == reflect.Slice {
-			for i := 0; i < valueOf.Len(); i++ {
-				valueOfIndex := valueOf.Index(i)
-				if valueOfIndex.Kind() == reflect.String {
-					valueOfIndex.SetString(fmt.Sprintf("\"%s\"", valueOfIndex.String()))
-				} else {
-					valueOfIndex = reflect.ValueOf(fmt.Sprintf("%v", valueOfIndex.Interface()))
-				}
-				listvalue = append(listvalue, valueOfIndex.String())
-			}
-		}
-
-		if r.ComparisonOperator.IsMultiValue() {
-			r.Value = fmt.Sprintf("(%v)", strings.Join(listvalue, ","))
-		}
-
-		if typeOf.Kind() == reflect.String {
-			r.Value = fmt.Sprintf("\"%s\"", r.Value)
-		}
+		values = append(values, r.Value)
 
 		if r.ComparisonOperator.IsRaw() {
-			filterQuery += valueOf.String()
+			filterQuery += r.Field
 		} else {
-			filterQuery += fmt.Sprintf("%s %s %v", r.Field, r.ComparisonOperator.ToString(), r.Value)
+			filterQuery += fmt.Sprintf("%s %s %v", r.Field, r.ComparisonOperator.ToString(), "?")
 		}
 
 		if i < len(filters)-1 {
@@ -120,5 +97,5 @@ func BuildWhereFilter(filters Filters) string {
 		}
 	}
 
-	return filterQuery
+	return filterQuery, values
 }

@@ -67,6 +67,70 @@ func TestInsertFieldBuilder(t *testing.T) {
 				return sqlsqbdr.BuildInsertField(humans, sqlsqbdr.IncludeField)
 			},
 		},
+		{
+			name: "test3 - pointer",
+			expected: func() sqlsqbdr.InsertField {
+				return sqlsqbdr.InsertField{
+					Name:        []string{"name", "age", "gender"},
+					Placeholder: []string{"(?,?,?)", "(?,?,?)"},
+					Values:      [][]any{{"test", 1, "M"}, {"test2", 2, "M"}},
+				}
+			},
+			actual: func() (sqlsqbdr.InsertField, error) {
+				type Human struct {
+					Name   string `json:"name" db:"name"`
+					Age    int    `json:"age" db:"age"`
+					Gender string `json:"gender" db:"gender"`
+				}
+
+				type Humans []*Human
+				humans := Humans{
+					{
+						Name:   "test",
+						Age:    1,
+						Gender: "M",
+					},
+					{
+						Name:   "test2",
+						Age:    2,
+						Gender: "M",
+					},
+				}
+				return sqlsqbdr.BuildInsertField(humans, sqlsqbdr.IncludeField)
+			},
+		},
+		{
+			name: "test3 - pointer single",
+			expected: func() sqlsqbdr.InsertField {
+				return sqlsqbdr.InsertField{
+					Name:        []string{"name", "age", "gender"},
+					Placeholder: []string{"(?,?,?)"},
+					Values:      [][]any{{"test", 1, "M"}},
+				}
+			},
+			actual: func() (sqlsqbdr.InsertField, error) {
+				type Human struct {
+					Name   string `json:"name" db:"name"`
+					Age    int    `json:"age" db:"age"`
+					Gender string `json:"gender" db:"gender"`
+				}
+
+				type Humans []*Human
+				humans := Humans{
+					{
+						Name:   "test",
+						Age:    1,
+						Gender: "M",
+					},
+					{
+						Name:   "test2",
+						Age:    2,
+						Gender: "M",
+					},
+				}
+				return sqlsqbdr.BuildInsertField(humans[0], sqlsqbdr.IncludeField)
+			},
+		},
 	}
 
 	for _, tc := range testCase {

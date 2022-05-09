@@ -1,25 +1,26 @@
 package sqlsqbdr_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/nurcahyaari/sqlsqbdr"
 	"github.com/stretchr/testify/assert"
 )
 
+type H struct{}
+
 func TestBuildWhereFilter(t *testing.T) {
 	testCase := []struct {
 		name string
-		exp  func() string
-		act  func() string
+		exp  func() (string, []interface{})
+		act  func() (string, []interface{})
 	}{
 		{
 			name: "test1",
-			exp: func() string {
-				return "name = \"test\""
+			exp: func() (string, []interface{}) {
+				return "name = ?", []interface{}{"test"}
 			},
-			act: func() string {
+			act: func() (string, []interface{}) {
 				return sqlsqbdr.BuildWhereFilter(sqlsqbdr.Filters{
 					&sqlsqbdr.Filter{
 						Field: "name",
@@ -30,10 +31,10 @@ func TestBuildWhereFilter(t *testing.T) {
 		},
 		{
 			name: "test2 - Multi filter",
-			exp: func() string {
-				return "name = \"test\" AND age = 1"
+			exp: func() (string, []interface{}) {
+				return "name = ? AND age = ?", []interface{}{"test", 1}
 			},
-			act: func() string {
+			act: func() (string, []interface{}) {
 				return sqlsqbdr.BuildWhereFilter(sqlsqbdr.Filters{
 					&sqlsqbdr.Filter{
 						Field: "name",
@@ -48,10 +49,10 @@ func TestBuildWhereFilter(t *testing.T) {
 		},
 		{
 			name: "test2 - IN AND NOT IN",
-			exp: func() string {
-				return "name IN (\"test\",\"test1\") OR age NOT IN (1,2)"
+			exp: func() (string, []interface{}) {
+				return "name IN ? OR age NOT IN ?", []interface{}{[]string{"test", "test1"}, []int64{1, 2}}
 			},
-			act: func() string {
+			act: func() (string, []interface{}) {
 				return sqlsqbdr.BuildWhereFilter(sqlsqbdr.Filters{
 					&sqlsqbdr.Filter{
 						Field:                 "name",
@@ -69,13 +70,14 @@ func TestBuildWhereFilter(t *testing.T) {
 		},
 		{
 			name: "test3 - raw (between)",
-			exp: func() string {
-				return "age between 1 AND 2"
+			exp: func() (string, []interface{}) {
+				return "age between ? AND ?", []interface{}{[]int{1, 2}}
 			},
-			act: func() string {
+			act: func() (string, []interface{}) {
 				return sqlsqbdr.BuildWhereFilter(sqlsqbdr.Filters{
 					&sqlsqbdr.Filter{
-						Value:              fmt.Sprintf("%s %s %v AND %v", "age", "between", 1, 2),
+						Field:              "age between ? AND ?",
+						Value:              []int{1, 2},
 						ComparisonOperator: sqlsqbdr.FilterRaw,
 					},
 				})
@@ -85,9 +87,10 @@ func TestBuildWhereFilter(t *testing.T) {
 
 	for _, tc := range testCase {
 		t.Run(tc.name, func(t *testing.T) {
-			exp := tc.exp()
-			act := tc.act()
-			assert.Equal(t, exp, act)
+			expQ, expV := tc.exp()
+			actQ, actV := tc.act()
+			assert.Equal(t, expQ, actQ)
+			assert.Equal(t, expV, actV)
 		})
 	}
 }

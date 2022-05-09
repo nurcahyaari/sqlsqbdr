@@ -16,6 +16,12 @@ func BuildUpdatedField(entity interface{}, fieldSelectorType TypeFieldSelect, fi
 	fieldMap := MultipleStringToMap(fields)
 	typeOf := reflect.TypeOf(entity)
 	valueOf := reflect.ValueOf(entity)
+
+	if typeOf.Kind() == reflect.Ptr {
+		typeOf = typeOf.Elem()
+		valueOf = valueOf.Elem()
+	}
+
 	if typeOf.Kind() != reflect.Struct {
 		return UpdatedField{}, errors.New("not a struct")
 	}

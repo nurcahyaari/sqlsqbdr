@@ -58,6 +58,11 @@ func BuildInsertField(entities interface{}, fieldSelectorType TypeFieldSelect, f
 			typeOf := reflect.TypeOf(valueOfEntity)
 			valueOf := reflect.ValueOf(valueOfEntity)
 
+			if typeOf.Kind() == reflect.Ptr {
+				typeOf = typeOf.Elem()
+				valueOf = valueOf.Elem()
+			}
+
 			if typeOf.Kind() != reflect.Struct {
 				return InsertField{}, errors.New("not a struct")
 			}
@@ -69,6 +74,14 @@ func BuildInsertField(entities interface{}, fieldSelectorType TypeFieldSelect, f
 			fieldValues = append(fieldValues, fvalue)
 		}
 	} else {
+		if typeOfEntities.Kind() == reflect.Ptr {
+			typeOfEntities = typeOfEntities.Elem()
+			valuesOfEntities = valuesOfEntities.Elem()
+		}
+
+		if typeOfEntities.Kind() != reflect.Struct {
+			return InsertField{}, errors.New("not a struct")
+		}
 		fname, fplaceholder, fvalue := createInsertField(typeOfEntities, valuesOfEntities, fieldSelectorType, fieldMap)
 		fieldName = fname
 		fieldPlaceholders = append(fieldPlaceholders, fmt.Sprintf("(%s)", strings.Join(fplaceholder, ",")))
