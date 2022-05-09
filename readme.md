@@ -100,10 +100,31 @@ updatedProduct := Product{
     Price: 2000,
     DiscountPrice: 1500,
 }
-
 ```
 
+### Type of FieldSelect
+sqlsqbdr have 2 field type
+<table border="1">
+<tr>
+    <th>name</th>
+    <th>usage</th>
+</tr>
+<tr>
+    <td>IncludeField</td>
+    <td>Select field based on the selected field on the params</td>
+</tr>
+<tr>
+    <td>ExcludeField</td>
+    <td>Select field that not in selected field on the params</td>
+</tr>
+</table>
+
 ### build insert placeholder
+
+`BuildInsertField` have 3 params first is the model/ entity's struct, the second is FieldSelectType, the the last is a variadic this params is defined the list of field that you want to insert if you choose the FieldSelectType as `IncludeField`. but if you chose the FieldSelectedType as `ExcludeField` the last params is the field that you don't want to insert
+
+
+
 ```go
 insertField, err := sqlsqbdr.BuildInsertField(products, sqlsqbdr.IncludeField)
 if err != nil {
@@ -141,7 +162,10 @@ query := fmt.Sprintf("INSERT INTO product (%s) VALUES %s", strings.Join(insertFi
 */
 ```
 
+
 ### build update placeholder
+`BuildUpdatedField` have 3 params. first is the model/ entity's struct, the second is FieldSelectType, the the last is a variadic this params is defined the list of field that you want to update if you choose the FieldSelectType as `IncludeField`. but if you chose the FieldSelectedType as `ExcludeField` the last params is the field that you don't want to update
+
 ```go
 updatedField, err := sqlsqbdr.BuildUpdatedField(updatedProduct, sqlsqbdr.IncludeField, "name", "price", "discount_price")
 if err != nil {
@@ -152,6 +176,26 @@ query := fmt.Sprintf("UPDATE product SET %s", strings.Join(updatedField.Name, ",
 ```
 
 ### build filtering field
+`BuildWhereFilter` has 1 param. and it's a defined struct
+
+#### the parameter
+`Filters` is an array, and here is the description about the struct
+
+<table border="1">
+<tr>
+    <th>name</th>
+    <th>usage</th>
+</tr>
+<tr>
+    <td>Field</td>
+    <td>it means the field on your database</td>
+</tr>
+<tr>
+    <td>Value</td>
+    <td>It means the value of the field</td>
+</tr>
+</table>
+
 ```go
 field, values := sqlsqbdr.BuildWhereFilter(sqlsqbdr.Filters{
     &sqlsqbdr.Filter{
