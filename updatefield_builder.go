@@ -17,6 +17,10 @@ func BuildUpdatedField(entity interface{}, fieldSelectorType TypeFieldSelect, fi
 	typeOf := reflect.TypeOf(entity)
 	valueOf := reflect.ValueOf(entity)
 
+	if entity == nil {
+		return UpdatedField{}, fmt.Errorf("empty")
+	}
+
 	if typeOf.Kind() == reflect.Ptr {
 		typeOf = typeOf.Elem()
 		valueOf = valueOf.Elem()

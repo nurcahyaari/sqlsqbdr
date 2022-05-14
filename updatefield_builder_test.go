@@ -12,9 +12,10 @@ import (
 func TestBuildUpdatedField(t *testing.T) {
 
 	testCase := []struct {
-		name string
-		exp  func() sqlsqbdr.UpdatedField
-		act  func() (sqlsqbdr.UpdatedField, error)
+		name    string
+		isError bool
+		exp     func() sqlsqbdr.UpdatedField
+		act     func() (sqlsqbdr.UpdatedField, error)
 	}{
 		{
 			name: "test1",
@@ -106,13 +107,65 @@ func TestBuildUpdatedField(t *testing.T) {
 				return sqlsqbdr.BuildUpdatedField(human, sqlsqbdr.IncludeField)
 			},
 		},
+		{
+			name:    "test5 - map string",
+			isError: true,
+			exp: func() sqlsqbdr.UpdatedField {
+				return sqlsqbdr.UpdatedField{}
+			},
+			act: func() (sqlsqbdr.UpdatedField, error) {
+				type Human struct {
+					Name    string `json:"name" db:"name"`
+					Age     int    `json:"age" db:"age"`
+					Gender  string `json:"gender" db:"gender"`
+					Address string `json:"address" db:"address"`
+				}
+				human := Human{
+					Name:    "test",
+					Age:     0,
+					Address: "Test1",
+				}
+
+				h := make(map[string]Human)
+				h["1"] = human
+				return sqlsqbdr.BuildUpdatedField(h, sqlsqbdr.IncludeField, "name", "age")
+			},
+		},
+		{
+			name:    "test6 - interface",
+			isError: true,
+			exp: func() sqlsqbdr.UpdatedField {
+				return sqlsqbdr.UpdatedField{}
+			},
+			act: func() (sqlsqbdr.UpdatedField, error) {
+				var a interface{}
+
+				return sqlsqbdr.BuildUpdatedField(a, sqlsqbdr.IncludeField, "name", "age")
+			},
+		},
+		{
+			name:    "test7 - non struct",
+			isError: true,
+			exp: func() sqlsqbdr.UpdatedField {
+				return sqlsqbdr.UpdatedField{}
+			},
+			act: func() (sqlsqbdr.UpdatedField, error) {
+				a := 1
+
+				return sqlsqbdr.BuildUpdatedField(a, sqlsqbdr.IncludeField, "name", "age")
+			},
+		},
 	}
 
 	for _, tc := range testCase {
 		t.Run(tc.name, func(t *testing.T) {
 			exp := tc.exp()
 			act, err := tc.act()
-			assert.NoError(t, err)
+			if tc.isError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 			assert.Equal(t, exp, act)
 		})
 	}
