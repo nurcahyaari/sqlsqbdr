@@ -46,19 +46,17 @@ func TestFullQueryCreational(t *testing.T) {
 		if err != nil {
 			return
 		}
-		insertFieldValue := [][]interface{}{
-			{
-				int64(1),
-				"Test",
-				"test.com/1.png",
-				int64(1000),
-				int64(1000),
-				true,
-				"2022-01-01 01:00:00",
-				"Tester",
-				"2022-01-01 01:00:00",
-				"Tester",
-			},
+		insertFieldValue := []interface{}{
+			int64(1),
+			"Test",
+			"test.com/1.png",
+			int64(1000),
+			int64(1000),
+			true,
+			"2022-01-01 01:00:00",
+			"Tester",
+			"2022-01-01 01:00:00",
+			"Tester",
 		}
 
 		query := fmt.Sprintf("INSERT INTO product (%s) VALUES %s", strings.Join(insertField.Name, ","), strings.Join(insertField.Placeholder, ","))

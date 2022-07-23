@@ -7,8 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type H struct{}
-
 func TestBuildWhereFilter(t *testing.T) {
 	testCase := []struct {
 		name string

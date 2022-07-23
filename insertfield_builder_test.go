@@ -20,7 +20,7 @@ func TestInsertFieldBuilder(t *testing.T) {
 				return sqlsqbdr.InsertField{
 					Name:        []string{"name", "age", "gender"},
 					Placeholder: []string{"(?,?,?)", "(?,?,?)"},
-					Values:      [][]any{{"test", 1, "M"}, {"test2", 2, "M"}},
+					Values:      []any{"test", 1, "M", "test2", 2, "M"},
 				}
 			},
 			actual: func() (sqlsqbdr.InsertField, error) {
@@ -49,7 +49,7 @@ func TestInsertFieldBuilder(t *testing.T) {
 				return sqlsqbdr.InsertField{
 					Name:        []string{"name", "age", "gender"},
 					Placeholder: []string{"(?,?,?)"},
-					Values:      [][]any{{"test", 1, "M"}},
+					Values:      []any{"test", 1, "M"},
 				}
 			},
 			actual: func() (sqlsqbdr.InsertField, error) {
@@ -73,7 +73,7 @@ func TestInsertFieldBuilder(t *testing.T) {
 				return sqlsqbdr.InsertField{
 					Name:        []string{"name", "age", "gender"},
 					Placeholder: []string{"(?,?,?)", "(?,?,?)"},
-					Values:      [][]any{{"test", 1, "M"}, {"test2", 2, "M"}},
+					Values:      []any{"test", 1, "M", "test2", 2, "M"},
 				}
 			},
 			actual: func() (sqlsqbdr.InsertField, error) {
@@ -105,7 +105,7 @@ func TestInsertFieldBuilder(t *testing.T) {
 				return sqlsqbdr.InsertField{
 					Name:        []string{"name", "age", "gender"},
 					Placeholder: []string{"(?,?,?)"},
-					Values:      [][]any{{"test", 1, "M"}},
+					Values:      []any{"test", 1, "M"},
 				}
 			},
 			actual: func() (sqlsqbdr.InsertField, error) {

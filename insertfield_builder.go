@@ -10,7 +10,7 @@ import (
 type InsertField struct {
 	Name        []string
 	Placeholder []string
-	Values      [][]interface{}
+	Values      []interface{}
 }
 
 func createInsertField(typeOf reflect.Type, valueOf reflect.Value, fieldSelectorType TypeFieldSelect, fieldMap map[string]string) ([]string, []string, []interface{}) {
@@ -49,7 +49,7 @@ func BuildInsertField(entities interface{}, fieldSelectorType TypeFieldSelect, f
 	var (
 		fieldName         []string
 		fieldPlaceholders []string
-		fieldValues       [][]interface{}
+		fieldValues       []interface{}
 	)
 
 	if typeOfEntities.Kind() == reflect.Slice || typeOfEntities.Kind() == reflect.Array {
@@ -71,7 +71,7 @@ func BuildInsertField(entities interface{}, fieldSelectorType TypeFieldSelect, f
 
 			fieldName = fname
 			fieldPlaceholders = append(fieldPlaceholders, fmt.Sprintf("(%s)", strings.Join(fplaceholder, ",")))
-			fieldValues = append(fieldValues, fvalue)
+			fieldValues = append(fieldValues, fvalue...)
 		}
 	} else {
 		if typeOfEntities.Kind() == reflect.Ptr {
@@ -85,7 +85,7 @@ func BuildInsertField(entities interface{}, fieldSelectorType TypeFieldSelect, f
 		fname, fplaceholder, fvalue := createInsertField(typeOfEntities, valuesOfEntities, fieldSelectorType, fieldMap)
 		fieldName = fname
 		fieldPlaceholders = append(fieldPlaceholders, fmt.Sprintf("(%s)", strings.Join(fplaceholder, ",")))
-		fieldValues = append(fieldValues, fvalue)
+		fieldValues = append(fieldValues, fvalue...)
 	}
 
 	return InsertField{
