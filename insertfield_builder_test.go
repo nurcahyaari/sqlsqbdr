@@ -131,6 +131,41 @@ func TestInsertFieldBuilder(t *testing.T) {
 				return sqlsqbdr.BuildInsertField(humans[0], sqlsqbdr.IncludeField)
 			},
 		},
+		{
+			name: "test4 - tag strip",
+			expected: func() sqlsqbdr.InsertField {
+				return sqlsqbdr.InsertField{
+					Name:        []string{"name", "age", "gender"},
+					Placeholder: []string{"(?,?,?)"},
+					Values:      []any{"test", 1, "M"},
+				}
+			},
+			actual: func() (sqlsqbdr.InsertField, error) {
+				type Human struct {
+					Name   string `json:"name" db:"name"`
+					Age    int    `json:"age" db:"age"`
+					Gender string `json:"gender" db:"gender"`
+					Non    string `json:"-" db:"-"`
+				}
+
+				type Humans []*Human
+				humans := Humans{
+					{
+						Name:   "test",
+						Age:    1,
+						Gender: "M",
+						Non:    "ABC",
+					},
+					{
+						Name:   "test2",
+						Age:    2,
+						Gender: "M",
+						Non:    "ABC",
+					},
+				}
+				return sqlsqbdr.BuildInsertField(humans[0], sqlsqbdr.IncludeField)
+			},
+		},
 	}
 
 	for _, tc := range testCase {
