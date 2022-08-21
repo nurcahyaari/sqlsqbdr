@@ -155,6 +155,29 @@ func TestBuildUpdatedField(t *testing.T) {
 				return sqlsqbdr.BuildUpdatedField(a, sqlsqbdr.IncludeField, "name", "age")
 			},
 		},
+		{
+			name: "test8 - with strip",
+			exp: func() sqlsqbdr.UpdatedField {
+				return sqlsqbdr.UpdatedField{
+					Name:  []string{"name = ?", "age = ?"},
+					Value: []any{"test", null.Int{sql.NullInt64{Valid: true, Int64: 1}}},
+				}
+			},
+			act: func() (sqlsqbdr.UpdatedField, error) {
+				human := struct {
+					Name   string   `json:"name" db:"name"`
+					Age    null.Int `json:"age" db:"age"`
+					Gender string   `json:"gender" db:"gender"`
+					Non    string   `json:"-" db:"-"`
+				}{
+					Name: "test",
+					Age:  null.IntFrom(1),
+					Non:  "1",
+				}
+
+				return sqlsqbdr.BuildUpdatedField(human, sqlsqbdr.IncludeField, "name", "age")
+			},
+		},
 	}
 
 	for _, tc := range testCase {

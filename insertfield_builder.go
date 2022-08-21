@@ -23,13 +23,13 @@ func createInsertField(typeOf reflect.Type, valueOf reflect.Value, fieldSelector
 		value := valueOf.Field(i)
 		switch fieldSelectorType {
 		case ExcludeField:
-			if fieldMap[name] != name || len(fieldMap) == 0 {
+			if (fieldMap[name] != name || len(fieldMap) == 0) && name != "-" {
 				fieldName = append(fieldName, name)
 				fieldPlaceholder = append(fieldPlaceholder, "?")
 				fieldValue = append(fieldValue, value.Interface())
 			}
 		default:
-			if fieldMap[name] == name || len(fieldMap) == 0 {
+			if (fieldMap[name] == name || len(fieldMap) == 0) && name != "-" {
 				fieldName = append(fieldName, name)
 				fieldPlaceholder = append(fieldPlaceholder, "?")
 				fieldValue = append(fieldValue, value.Interface())
@@ -68,6 +68,9 @@ func BuildInsertField(entities interface{}, fieldSelectorType TypeFieldSelect, f
 			}
 
 			fname, fplaceholder, fvalue := createInsertField(typeOf, valueOf, fieldSelectorType, fieldMap)
+			if fname == nil || fplaceholder == nil || fvalue == nil {
+				continue
+			}
 
 			fieldName = fname
 			fieldPlaceholders = append(fieldPlaceholders, fmt.Sprintf("(%s)", strings.Join(fplaceholder, ",")))
@@ -83,6 +86,10 @@ func BuildInsertField(entities interface{}, fieldSelectorType TypeFieldSelect, f
 			return InsertField{}, errors.New("not a struct")
 		}
 		fname, fplaceholder, fvalue := createInsertField(typeOfEntities, valuesOfEntities, fieldSelectorType, fieldMap)
+		if fname == nil || fplaceholder == nil || fvalue == nil {
+			return InsertField{}, nil
+		}
+
 		fieldName = fname
 		fieldPlaceholders = append(fieldPlaceholders, fmt.Sprintf("(%s)", strings.Join(fplaceholder, ",")))
 		fieldValues = append(fieldValues, fvalue...)
